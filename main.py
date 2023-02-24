@@ -2,15 +2,23 @@
 import sqlite3
 
 
+"""
+
+
+"""
+
+
+
 # Connecting to the DB and creating a cursor
 db_name = "RentalDB.db"
 dbsql_name = "RentalDB.sqlite"
-db = sqlite3.connect(db_name)
+db = sqlite3.connect(dbsql_name)
 cur = db.cursor()
 
 def initializeDB():
     try:
-        f = open(dbsql_name, "r")
+        f = open("asdas.sql", "r")
+        print(f.read())
         commandstring = ""
         for line in f.readlines():
             commandstring += line
@@ -21,26 +29,24 @@ def initializeDB():
         print("No SQL file to be used for initialization")
 
 
-def printPlayers():
-    print("Printing players")
-    """
-    Insert the correct Python and SQL commands
-    to print all players
-    """
-    # Start your modifications after this comment
-    # You should print the data noe row at a time.
+def printCars():
+    print("Printing cars")
+
+    cur.execute("SELECT * FROM Cars;")
+    results = cur.fetchall()
+    for row in results:
+        print(row)
 
     return
 
 
-def printRanking():
-    print("Printing ranking")
-    """
-    Insert the correct Python and SQL commands 
-    to print all ranking information
-    """
-    # Start your modifications after this comment
-    # You should print the data noe row at a time.
+def printLocations():
+    print("Printing rental locations")
+
+    cur.execute("SELECT * FROM Locations;")
+    results = cur.fetchall()
+    for row in results:
+        print(row)
 
     return
 
@@ -100,12 +106,12 @@ def deletePlayer():
 
 
 if __name__ == '__main__':
-    initializeDB()
+    #initializeDB()        # don't
     userInput = -1
     while (userInput != "0"):
         print("\nMenu options:")
-        print("1: Print Players")
-        print("2: Print Ranking")
+        print("1: Print Cars")
+        print("2: Print Locations")
         print("3: Print Matches")
         print("4: Search for one player")
         print("5: Move matchdate")
@@ -114,9 +120,9 @@ if __name__ == '__main__':
         userInput = input("What do you want to do? ")
         print(userInput)
         if userInput == "1":
-            printPlayers()
+            printCars()
         if userInput == "2":
-            printRanking()
+            printLocations()
         if userInput == "3":
             printMatches()
         if userInput == "4":
