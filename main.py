@@ -1,32 +1,12 @@
-# This is a sample Python script.
+# This is a simple Python script.
 import sqlite3
-
-
-"""
-
+import initializeDB
 
 """
+TODO:
+- 
 
-
-
-# Connecting to the DB and creating a cursor
-db_name = "RentalDB.db"
-dbsql_name = "RentalDB.sqlite"
-db = sqlite3.connect(dbsql_name)
-cur = db.cursor()
-
-def initializeDB():
-    try:
-        f = open("asdas.sql", "r")
-        print(f.read())
-        commandstring = ""
-        for line in f.readlines():
-            commandstring += line
-        cur.executescript(commandstring)
-    except sqlite3.OperationalError:
-        print("Database exists, skip initialization")
-    except:
-        print("No SQL file to be used for initialization")
+"""
 
 
 def printCars():
@@ -106,16 +86,24 @@ def deletePlayer():
 
 
 if __name__ == '__main__':
-    #initializeDB()        # don't
+    # Declaring variables
+    db_name = "test2.sqlite"
     userInput = -1
+
+    # Initialize connection and cursor
+    initializeDB.initializeDataBase(db_name)
+    conn = sqlite3.connect(db_name)
+    cur = conn.cursor()
+    
+    # Main loop
     while (userInput != "0"):
         print("\nMenu options:")
         print("1: Print Cars")
         print("2: Print Locations")
-        print("3: Print Matches")
-        print("4: Search for one player")
-        print("5: Move matchdate")
-        print("6: Delete player")
+        print("3: Print -")
+        print("4: Search for ")
+        print("5: Make -")
+        print("6: Delete -")
         print("0: Quit")
         userInput = input("What do you want to do? ")
         print(userInput)
@@ -133,6 +121,8 @@ if __name__ == '__main__':
             deletePlayer()
         if userInput == "0":
             print("Ending software...")
-    db.close()
+
+    # End program
+    conn.close()
 
 # EOF

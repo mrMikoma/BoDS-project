@@ -1,13 +1,11 @@
 
 import sqlite3
 from sqlite3 import Error
+import os.path
 
-dbName = "asd.sqlite"
-conn = sqlite3.connect(dbName) 
-cur = conn.cursor()
 
-def createTables():
-    print("Creating tables...")
+def createTables(conn, cur):
+    print("...Creating tables.")
 
     # Cars -table
     cur.execute('''
@@ -67,8 +65,8 @@ def createTables():
     conn.commit()
     return
 
-def addDefaultValues():
-    print("Adding default values...")
+def addDefaultValues(conn, cur):
+    print("...Adding default values.")
 
     # Cars -values
     cur.execute('''
@@ -129,20 +127,28 @@ def addDefaultValues():
     conn.commit()
     return
 
-def initializeDB(dbName):
+def initializeDataBase(dbName):
     print("Initializing database...")
 
-    createTables()
+    # Check if database already exists
+    if os.path.exists(dbName):
+        print("Database already exists.")
 
-    addDefaultValues()
+    else:
+        conn = sqlite3.connect(dbName) 
+        cur = conn.cursor()
+        createTables(conn, cur)
+        addDefaultValues(conn, cur)
+        conn.close()
 
     print("Initiation completed successfully.")
     return
 
+
+# For testing purposes only
 if __name__ == '__main__':
-    
-    initializeDB(dbName)
-
-
+    print("yea boi")
+    #dbName = "test.sqlite"
+    #initializeDataBase(dbName)
 
 # EOF
