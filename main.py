@@ -31,14 +31,13 @@ def printLocations():
     return
 
 
-def printMatches():
-    print("Printing matches")
-    """ 
-    Insert the correct Python and SQL commands 
-    to print all ranking information
-    """
-    # Start your modifications after this comment
-    # You should print the data one row at a time.
+def printX():
+    print("Printing X")
+
+    cur.execute("SELECT * FROM Reservation;")
+    results = cur.fetchall()
+    for row in results:
+        print(row)
 
     return
 
@@ -87,7 +86,7 @@ def deletePlayer():
 
 if __name__ == '__main__':
     # Declaring variables
-    db_name = "test2.sqlite"
+    db_name = "test.sqlite"
     userInput = -1
 
     # Initialize connection and cursor
@@ -112,7 +111,7 @@ if __name__ == '__main__':
         if userInput == "2":
             printLocations()
         if userInput == "3":
-            printMatches()
+            printX()
         if userInput == "4":
             searchPlayer()
         if userInput == "5":
