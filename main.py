@@ -100,9 +100,11 @@ if __name__ == '__main__':
         print("1: Print Cars")
         print("2: Print Locations")
         print("3: Print -")
-        print("4: Search for ")
-        print("5: Make -")
-        print("6: Delete -")
+        print("4: Print -")
+        print("5: Print -")
+        print("6: Search for ")
+        print("7: Make -")
+        print("8: Delete -")
         print("0: Quit")
         userInput = input("What do you want to do? ")
         print(userInput)
@@ -113,10 +115,14 @@ if __name__ == '__main__':
         if userInput == "3":
             printX()
         if userInput == "4":
-            searchPlayer()
+            printX()
         if userInput == "5":
-            moveMatch()
+            printX()
         if userInput == "6":
+            searchPlayer()
+        if userInput == "7":
+            moveMatch()
+        if userInput == "8":
             deletePlayer()
         if userInput == "0":
             print("Ending software...")

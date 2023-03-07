@@ -7,29 +7,32 @@ import os.path
 def createTables(conn, cur):
     print("...Creating tables.")
 
-    # Cars -table
+    # Enabling foreign keys
+    cur.execute('''PRAGMA foreign_keys = ON;''')
+
+    # Car -table
     try:
         cur.execute('''
-            CREATE TABLE "Cars" (
+            CREATE TABLE "Car" (
             "CarID"	INTEGER NOT NULL,
-            "Registeration_number"	TEXT,
+            "Registeration_number" TEXT UNIQUE,
             "Brand"	TEXT,
             "Model"	TEXT,
-            "Number_of_passangers"	INTEGER,
+            "Number_of_passangers" INTEGER,
             PRIMARY KEY("CarID" AUTOINCREMENT))
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
-    
+
     # Customers -table
     try:
         cur.execute('''
             CREATE TABLE "Customers" (
-            "CustomerID"	INTEGER NOT NULL,
-            "Firstname"	TEXT,
-            "Lastname"	TEXT,
-            "Address"	TEXT,
+            "CustomerID" INTEGER NOT NULL UNIQUE,
+            "Firstname" TEXT,
+            "Lastname" TEXT,
+            "Phone"	TEXT,
             PRIMARY KEY("CustomerID" AUTOINCREMENT))
             ''')
     except sqlite3.Error as er:
@@ -40,49 +43,67 @@ def createTables(conn, cur):
     try:
         cur.execute('''
             CREATE TABLE "Locations" (
-            "LocationID"	INTEGER NOT NULL,
-            "Address"	TEXT,
-            "Type"	TEXT,
+            "LocationID" INTEGER NOT NULL,
+            "Address" TEXT,
+            "Type" TEXT,
             PRIMARY KEY("LocationID" AUTOINCREMENT))
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
-
+    
     # Prices -table
     try:
         cur.execute('''
             CREATE TABLE "Prices" (
-            "PriceID"	INTEGER NOT NULL,
-            "CarID"	INTEGER,
-            "Week_price"	INTEGER,
+            "PriceID" INTEGER NOT NULL,
+            "CarID" INTEGER,
+            "Week_price" INTEGER,
             "Day_price"	INTEGER,
-            PRIMARY KEY("PriceID" AUTOINCREMENT))
+            PRIMARY KEY("PriceID" AUTOINCREMENT),
+            FOREIGN KEY("CarID") REFERENCES "Car" ("CarID"))
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
-        print(er)   
-    # Reservation -table
+        print(er)
+
+    # Cars -table
     try:
         cur.execute('''
-            CREATE TABLE "Reservation" (
-            "ReservationID"	INTEGER NOT NULL,
-            "Start_time"	TEXT,
-            "End_time"	TEXT,
+            CREATE TABLE "Cars" (
+            "CarID"	INTEGER,
+            "LocationID" INTEGER,
+            FOREIGN KEY("CarID") REFERENCES "Car" ("CarID"),
+            FOREIGN KEY("LocationID") REFERENCES "Locations" ("LocationID"))
+            ''')
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)      
+ 
+    # Reservations -table
+    try:
+        cur.execute('''
+            CREATE TABLE "Reservations" (
+            "ReservationID"	INTEGER NOT NULL UNIQUE,
+            "CustomerID"	INTEGER,
+            "CarID"	INTEGER,
             PRIMARY KEY("ReservationID" AUTOINCREMENT))
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
-        
-    # Reservations -table
+
+    # ReservationTime -table
     try:
         cur.execute('''
-            CREATE TABLE "Reservations" (
+            CREATE TABLE "ReservationTime" (
             "ReservationID"	INTEGER NOT NULL,
-            "CustomerID"	INTEGER,
-            "CarID"	INTEGER,
-            "LocationID"	INTEGER)
+            "Start_time"	TEXT,
+            "End_time"	TEXT,
+            FOREIGN KEY("ReservationID") 
+            REFERENCES Reservations ("ReservationID")
+            ON UPDATE CASCADE
+            ON DELETE CASCADE)
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
@@ -94,10 +115,10 @@ def createTables(conn, cur):
 def addDefaultValues(conn, cur):
     print("...Adding default values.")
 
-    # Cars -values
+    # Car -values
     try:
         cur.execute('''
-            INSERT INTO Cars (Registeration_number, Brand, Model, Number_of_passangers) VALUES 
+            INSERT INTO Car (Registeration_number, Brand, Model, Number_of_passangers) VALUES 
             ("ASD-123", "BMw", "M5", 5),
             ("FSD-642", "Volvo", "V40", 5),
             ("YJV-878", "Saab", "93", 5),
@@ -112,13 +133,13 @@ def addDefaultValues(conn, cur):
     # Customers -values
     try:
         cur.execute('''
-            INSERT INTO Customers (Firstname, Lastname, Address) VALUES 
-            ("Taneli",	"Mäkelä", "Tietyö 6, Lappeenranta"),
-            ("Pirkko",	"Leppänen",	"Asemakatu 67, Pirkkala"),
-            ("Jonne",	"Eeeäss",	"Ammattikoulunkatu 69, Imatra"),
-            ("Veeti",	"Tarppinen",	"Nörttikatu 7, Lappeenranta"),
-            ("Anne",	"Välimäki",	"Mikonkatu 1, Helsinki"),
-            ("Jesper",	"Pulunen",	"Lintutornintie 668, Simpele")
+            INSERT INTO Customers (Firstname, Lastname, Phone) VALUES 
+            ("Taneli",	"Mäkelä", "+358 45 73966153"),
+            ("Pirkko",	"Leppänen",	"+358 50 43593422"),
+            ("Jonne",	"Eeeäss",	"+358 50 27571484"),
+            ("Veeti",	"Tarppinen", "+358 49 46873673"),
+            ("Anne",	"Välimäki",	"+358 49 46077948"),
+            ("Jesper",	"Pulunen",	"+358 49 466354")
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
@@ -154,39 +175,52 @@ def addDefaultValues(conn, cur):
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
-    
-    # Reservation -values
+
+    # Cars -values
     try:
         cur.execute('''
-            INSERT INTO Reservation (Start_time, End_time) VALUES 
-            ("2023-03-06T15:00:00+02:00", "2023-03-07T12:00:00+02:00"),
-            ("2023-03-06T15:00:00+02:00", "2023-03-09T12:00:00+02:00"),
-            ("2023-03-06T15:00:00+02:00", "2023-03-012T12:00:00+02:00"),
-            ("2023-03-06T15:00:00+02:00", "2023-03-12T12:00:00+02:00"),
-            ("2023-03-13T15:00:00+02:00", "2023-03-14T12:00:00+02:00"),
-            ("2023-03-14T15:00:00+02:00", "2023-03-21T12:00:00+02:00")
+            INSERT INTO Cars (CarID, LocationID) VALUES 
+            (1, 2),
+            (2, 4),
+            (3, 6),
+            (4, 3),
+            (5, 3),
+            (6, 3)
+            ''')
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    # Reservations -values
+    try:
+        cur.execute('''
+            INSERT INTO Reservations (CustomerID, CarID) VALUES 
+            (1, 1),
+            (2, 5),
+            (3, 6),
+            (4, 3),
+            (5, 4),
+            (6, 3)
+            ''')
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    # ReservationTime -values
+    try:
+        cur.execute('''
+            INSERT INTO ReservationTime (ReservationID, Start_time, End_time) VALUES 
+            (1, "2023-03-06T15:00:00+02:00", "2023-03-07T12:00:00+02:00"),
+            (2, "2023-03-06T15:00:00+02:00", "2023-03-09T12:00:00+02:00"),
+            (3, "2023-03-06T15:00:00+02:00", "2023-03-012T12:00:00+02:00"),
+            (4, "2023-03-06T15:00:00+02:00", "2023-03-12T12:00:00+02:00"),
+            (5, "2023-03-13T15:00:00+02:00", "2023-03-14T12:00:00+02:00"),
+            (6, "2023-03-14T15:00:00+02:00", "2023-03-21T12:00:00+02:00")
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
     
-    """
-    # Reservations -values
-    try
-        cur.execute('''
-            INSERT INTO Reservations (ReservationID, CustomerID, CarID, LocationID) VALUES 
-            (1, 1, 1, 1),
-            (2, 2, 2, 3),
-            (3, 3, 1, 6),
-            (4, 4, 1, 3),
-            (5, 5, 1, 3),
-            (6, 6, 1, 3)
-            ''')
-    except sqlite3.Error as er:
-        print("--- ERROR OCCURED ---")
-        print(er)
-    """
-
     conn.commit()
     return
 
@@ -204,14 +238,14 @@ def initializeDataBase(dbName):
         addDefaultValues(conn, cur)
         conn.close()
 
-    print("Initiation completed successfully.")
+    print("Initiation completed.")
     return
 
 
 # For testing purposes only
 if __name__ == '__main__':
     print("yea boi")
-    #dbName = "test.sqlite"
-    #initializeDataBase(dbName)
+    dbName = "test22.sqlite"
+    initializeDataBase(dbName)
 
 # EOF
