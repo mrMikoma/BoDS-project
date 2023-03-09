@@ -224,6 +224,23 @@ def addDefaultValues(conn, cur):
     conn.commit()
     return
 
+def addIndexes(conn, cur):
+    print("ou yea")
+
+    #  -index
+    try:
+        cur.execute('''
+                CREATE INDEX
+
+            ''')
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+    
+    conn.commit()
+
+    return
+
 def initializeDataBase(dbName):
     print("--- Initializing database. ---")
 
@@ -237,6 +254,7 @@ def initializeDataBase(dbName):
         cur = conn.cursor()
         createTables(conn, cur)
         addDefaultValues(conn, cur)
+        #addIndexes(conn, cur)          # NOT READY
         conn.close()
 
     print("--- Initiation completed. ---")

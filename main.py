@@ -104,6 +104,76 @@ def printCustomers():
 
     return
 
+# Print rental price
+def rentalPrice():
+    reservationID = input("Reservation ID: ")
+
+    # Get times from ReservationTime-table
+    try:
+        cur.execute('''
+                SELECT * FROM ReservationTime 
+                WHERE reservationID = (?);
+                ''', (reservationID, ))
+        results = cur.fetchall()
+        startTimeString = results[0][1]
+        endTimeString = results[0][2]
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    # Calculate rental duration
+    try:
+        startTime = datetime.datetime.fromisoformat(startTimeString)
+        endTime = datetime.datetime.fromisoformat(endTimeString)
+        durationDays = (endTime - startTime).days + 1
+        print(f"Your rental duration is {durationDays} days.")
+
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED WHILE CALCULATING RENTAL PRICE ---")
+        print(er)
+
+    # Get car id
+    try:
+        cur.execute('''
+                SELECT CarID FROM Reservations 
+                WHERE reservationID = (?);
+                ''', (reservationID, ))
+        results = cur.fetchall()
+        carID = results[0][0]
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    # Get rental prices
+    try:
+        cur.execute('''
+                SELECT * FROM Prices 
+                WHERE CarID = (?);
+                ''', (carID, ))
+        results = cur.fetchall()
+        Week_price = results[0][2]
+        Day_price = results[0][3]
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    # Calculate rental price
+    rentalCost = 0
+    durationInfo = divmod(durationDays, 7)
+
+    if durationInfo[1] == 0:
+        rentalCost = Week_price * durationInfo[0]
+    else:
+        rentalCost = Day_price * durationDays
+
+    print(f"Rental will cost: {rentalCost}€")
+
+    return
+
 # Test print functions (FOR TESTING)
 def printX():
     print("Printing X")
@@ -216,10 +286,8 @@ def makeReservation():
         # Parse time
         dbTimeStart = datetime.datetime.strptime(rentalStartTime, "%d.%m.%Y").astimezone().replace(hour=15, minute=00, microsecond=0).isoformat()
         dbTimeEnd = datetime.datetime.strptime(rentalEndTime, "%d.%m.%Y").astimezone().replace(hour=15, minute=00, microsecond=0).isoformat()
-        print(f"From: {dbTimeStart} till: {dbTimeEnd}")
 
         # Insert into table
-
         cur.execute('''
             INSERT INTO
             ReservationTime
@@ -227,7 +295,7 @@ def makeReservation():
         ''', (cur.lastrowid, dbTimeStart, dbTimeEnd, ))
 
         conn.commit()
-        print(f"Reservation with ID {carID} added.")
+        print(f"Reservation with ID {carID} added.")            # FIX THIS
 
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
@@ -279,7 +347,7 @@ if __name__ == '__main__':
         print("1: Print Cars")                  # SELECT-query
         print("2: Print Locations")             # SELECT-query
         print("3: Print Reservations")          # SELECT-query
-        print("4: Print -")                     # TBA (for testing ON DELETE CASCADE)
+        print("4: Get rental price")            # CALCULATE rental price
         print("5: Search for cars")             # SELECT-query
         print("6: Search for reservation")      # SELECT-query
         print("7: Make reservation")            # INSERT VALUES reservation
@@ -298,7 +366,7 @@ if __name__ == '__main__':
         if userInput == "3":
             printReservations()
         if userInput == "4":
-            printX()
+            rentalPrice()
         if userInput == "5":
             searchCar()
         if userInput == "6":
