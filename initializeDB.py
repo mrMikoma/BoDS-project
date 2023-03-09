@@ -100,10 +100,10 @@ def createTables(conn, cur):
             "ReservationID"	INTEGER NOT NULL,
             "Start_time"	TEXT,
             "End_time"	TEXT,
-            FOREIGN KEY("ReservationID") 
-            REFERENCES Reservations ("ReservationID")
-            ON UPDATE CASCADE
-            ON DELETE CASCADE)
+            CONSTRAINT fk_reservationID
+                FOREIGN KEY("ReservationID") 
+                REFERENCES Reservations ("ReservationID")
+                ON DELETE CASCADE)
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
@@ -212,7 +212,7 @@ def addDefaultValues(conn, cur):
             INSERT INTO ReservationTime (ReservationID, Start_time, End_time) VALUES 
             (1, "2023-03-06T15:00:00+02:00", "2023-03-07T12:00:00+02:00"),
             (2, "2023-03-06T15:00:00+02:00", "2023-03-09T12:00:00+02:00"),
-            (3, "2023-03-06T15:00:00+02:00", "2023-03-012T12:00:00+02:00"),
+            (3, "2023-03-06T15:00:00+02:00", "2023-03-12T12:00:00+02:00"),
             (4, "2023-03-06T15:00:00+02:00", "2023-03-12T12:00:00+02:00"),
             (5, "2023-03-13T15:00:00+02:00", "2023-03-14T12:00:00+02:00"),
             (6, "2023-03-14T15:00:00+02:00", "2023-03-21T12:00:00+02:00")

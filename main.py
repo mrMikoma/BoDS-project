@@ -1,11 +1,12 @@
 # This is a simple Python script.
 import sqlite3
 import initializeDB
+import datetime
 
 """
 TODO:
 - ADD MISSING OPTIONS
-- CREATE INDEX
+- CREATE INDEXES
 
 """
 
@@ -17,7 +18,7 @@ def printCars():
         cur.execute('''
             SELECT
             Car.CarID, 
-            Brand AS "Car Brand", 
+            Brand, 
             Model,
             Registeration_number, 
             Number_of_passangers,
@@ -64,7 +65,35 @@ def printReservations():
     print("Printing reservations...")
 
     try:
-        cur.execute("SELECT * FROM Reservations;")
+        cur.execute('''
+            SELECT
+            Reservations.ReservationID,
+            Customers.Firstname,
+            Customers.Lastname,
+            ReservationTime.Start_time,
+            ReservationTime.End_time
+            FROM Reservations
+            INNER JOIN Customers ON Customers.CustomerID = Reservations.CustomerID
+            INNER JOIN ReservationTime ON ReservationTime.ReservationID = Reservations.ReservationID
+            ORDER BY ReservationTime.Start_time, Customers.Firstname, Customers.Lastname, ReservationTime.End_time;
+            ''')
+        
+        results = cur.fetchall()
+        for row in results:
+            print(row)
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    return
+
+# Print all customers
+def printCustomers():
+    print("Printing all customers")
+
+    try:
+        cur.execute("SELECT * FROM Customers;")
         results = cur.fetchall()
         for row in results:
             print(row)
@@ -80,7 +109,7 @@ def printX():
     print("Printing X")
 
     try:
-        cur.execute("SELECT * FROM Reservations;")
+        cur.execute("SELECT * FROM ReservationTime;")
         results = cur.fetchall()
         for row in results:
             print(row)
@@ -135,11 +164,13 @@ def searchReservations():
             Reservations.ReservationID,
             Firstname,
             Lastname,
-            Reservations.CarID
+            Car.Brand,
+            Car.Registeration_number
             FROM Reservations
             INNER JOIN Customers ON Customers.CustomerID = Reservations.CustomerID
             INNER JOIN ReservationTime ON ReservationTime.ReservationID = Reservations.ReservationID
             INNER JOIN Cars ON Cars.CarID = Reservations.CarID
+            INNER JOIN Car on Car.CarID = Cars.CarID
             WHERE Firstname = (?) AND Lastname = (?);
             ''', (customerFirstName, customerLastName, ))
         
@@ -158,19 +189,50 @@ def searchReservations():
 
 # Add a new reservation
 def makeReservation():
-    asd = input("What is the matchID of the match you want to move? ")
+    # Declaring variables
+    printCustomers()
+    customerID = input("Your customer ID: ")
+    printCars()
+    carID = input("Rental car ID: ")
+    rentalStartTime = input("Rental start date (DD.MM.YYYY): ")
+    rentalEndTime = input("Rental end time (DD.MM.YYYY): ")
 
+    # Add reservation to Reservations-table
     try:
-        print("aha") # DEBUG
-
-        #cur.execute('''
-
-        #''', (asd, ))
+        cur.execute('''
+            INSERT INTO
+            Reservations (customerID, carID)
+            VALUES (?, ?);
+        ''', (customerID, carID, ))
 
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
 
+    print("Latest ID: " + str(cur.lastrowid))
+
+    # Add reservation times to ReservationTime-table
+    try:
+        # Parse time
+        dbTimeStart = datetime.datetime.strptime(rentalStartTime, "%d.%m.%Y").astimezone().replace(hour=15, minute=00, microsecond=0).isoformat()
+        dbTimeEnd = datetime.datetime.strptime(rentalEndTime, "%d.%m.%Y").astimezone().replace(hour=15, minute=00, microsecond=0).isoformat()
+        print(f"From: {dbTimeStart} till: {dbTimeEnd}")
+
+        # Insert into table
+
+        cur.execute('''
+            INSERT INTO
+            ReservationTime
+            VALUES(?, ?, ?);
+        ''', (cur.lastrowid, dbTimeStart, dbTimeEnd, ))
+
+        conn.commit()
+        print(f"Reservation with ID {carID} added.")
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+    
     return
 
 # Delete reservation with user input ID
@@ -193,17 +255,32 @@ def deleteReservation():
 
     return
 
+def handleUserTime(userTime):
+    # '2023-03-14T15:00:00+02:00'
+    try:
+        dbTime = datetime.datetime.strptime(userTime, "%d.%m.%Y").astimezone().replace(hour=12, minute=00, microsecond=0).isoformat()
+        print(dbTime)
+        dbTimeString = "asd"
+
+    except sqlite3.Error as er:
+        print("--- ERROT: Incorrect time format, please try again. ---")
+        print(er)
+
+    return(dbTimeString)
+
 
 if __name__ == '__main__':
     # Declaring variables
-    db_name = "test.sqlite"
+    dbName = "test.sqlite"
     userInput = -1
 
     # Initialize database connection and cursor
     try:
-        initializeDB.initializeDataBase(db_name)
-        conn = sqlite3.connect(db_name)
+        initializeDB.initializeDataBase(dbName)
+        conn = sqlite3.connect(dbName)
         cur = conn.cursor()
+        cur.execute("PRAGMA foreign_keys = ON;")
+
     except sqlite3.Error as er:
         print("--- ERROR OCCURED WHILE INITIALIZING DATABASE ---")
         print(er)
@@ -215,7 +292,7 @@ if __name__ == '__main__':
         print("1: Print Cars")                  # SELECT-query
         print("2: Print Locations")             # SELECT-query
         print("3: Print Reservations")          # SELECT-query
-        print("4: Print -")                     # -
+        print("4: Print -")                     # TBA (for testing ON DELETE CASCADE)
         print("5: Search for cars")             # SELECT-query
         print("6: Search for reservation")      # SELECT-query
         print("7: Make reservation")            # INSERT VALUES reservation
