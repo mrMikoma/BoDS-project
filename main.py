@@ -8,31 +8,40 @@ TODO:
 
 """
 
-
+# Print all cars and car locations
 def printCars():
     print("Printing cars")
 
-    cur.execute('''SELECT 
-                    Brand, 
-                    Model,
-                    Registeration_number, 
-                    Number_of_passangers,
-                    Locations.City
-                    FROM Car
-                    INNER JOIN Cars ON Cars.CarID = Car.CarID
-                    INNER JOIN Locations ON Locations.LocationID = Cars.LocationID;
-                 ''')
+    cur.execute('''
+        SELECT
+        Car.CarID, 
+        Brand AS "Car Brand", 
+        Model,
+        Registeration_number, 
+        Number_of_passangers,
+        Locations.City
+        FROM Car
+        INNER JOIN Cars ON Cars.CarID = Car.CarID
+        INNER JOIN Locations ON Locations.LocationID = Cars.LocationID;
+        ''')
     results = cur.fetchall()
     for row in results:
         print(row)
 
     return
 
-
+# Print all rental locations
 def printLocations():
     print("Printing rental locations")
 
-    cur.execute("SELECT * FROM Locations;")
+    cur.execute('''
+        SELECT
+        LocationID, 
+        City,
+        Address,
+        Type
+        FROM Locations;
+        ''')
     results = cur.fetchall()
     for row in results:
         print(row)
@@ -50,21 +59,31 @@ def printX():
 
     return
 
+# Search cars by brand and seats
+def searchCar():
+    carBrand = input("Car brand: ")
+    carSeats = input("Number of seats: ")
 
-def searchPlayer():
-    playerName = input("What is the player's surname? ")
-    """ 
-    Insert the correct Python and SQL commands to find the player 
-    using the given surname
-    """
-    # Start your modifications after this comment
-    # You are given the print statements, now you need to add the fetched data to the five prints.
-
-    print("ID:")
-    print("First name:")
-    print("Last name:")
-    print("Birthdate: ")
-    print("Nationality:")
+    cur.execute('''
+        SELECT
+        Car.CarID, 
+        Brand, 
+        Model,
+        Registeration_number, 
+        Number_of_passangers,
+        Locations.City
+        FROM Car
+        INNER JOIN Cars ON Cars.CarID = Car.CarID
+        INNER JOIN Locations ON Locations.LocationID = Cars.LocationID
+        WHERE Brand = (?) AND Number_of_passangers = (?);
+        ''', (carBrand, carSeats,))
+    
+    results = cur.fetchall()
+    if not results:
+        print("\nNo matching cars. Try again changing search options...")
+    else:
+        for row in results:
+            print(row)
 
     return
 
@@ -112,7 +131,7 @@ if __name__ == '__main__':
         print("3: Print -")
         print("4: Print -")
         print("5: Print -")
-        print("6: Search for ")
+        print("6: Search for car")
         print("7: Make -")
         print("8: Delete -")
         print("0: Quit")
@@ -133,7 +152,7 @@ if __name__ == '__main__':
         if userInput == "5":
             printX()
         if userInput == "6":
-            searchPlayer()
+            searchCar()
         if userInput == "7":
             moveMatch()
         if userInput == "8":

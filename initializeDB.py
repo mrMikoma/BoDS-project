@@ -119,7 +119,7 @@ def addDefaultValues(conn, cur):
     try:
         cur.execute('''
             INSERT INTO Car (Registeration_number, Brand, Model, Number_of_passangers) VALUES 
-            ("ASD-123", "BMw", "M5", 5),
+            ("ASD-123", "Bmw", "M5", 5),
             ("FSD-642", "Volvo", "V40", 5),
             ("YJV-878", "Saab", "93", 5),
             ("FDH-113", "Volvo", "XC60", 5),
