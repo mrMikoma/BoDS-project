@@ -17,7 +17,7 @@ def createTables(conn, cur):
             "Registeration_number" TEXT UNIQUE,
             "Brand"	TEXT,
             "Model"	TEXT,
-            "Number_of_passangers" INTEGER,
+            "Number_of_passangers" INTEGER DEFAULT 5,
             PRIMARY KEY("CarID" AUTOINCREMENT))
             ''')
     except sqlite3.Error as er:
@@ -225,7 +225,7 @@ def addDefaultValues(conn, cur):
     return
 
 def initializeDataBase(dbName):
-    print("Initializing database...")
+    print("--- Initializing database. ---")
 
     # Check if database already exists
     if os.path.exists(dbName):
@@ -239,7 +239,7 @@ def initializeDataBase(dbName):
         addDefaultValues(conn, cur)
         conn.close()
 
-    print("Initiation completed.")
+    print("--- Initiation completed. ---")
     return
 
 

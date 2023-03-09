@@ -4,58 +4,90 @@ import initializeDB
 
 """
 TODO:
-- 
+- ADD MISSING OPTIONS
+- CREATE INDEX
 
 """
 
 # Print all cars and car locations
 def printCars():
-    print("Printing cars")
+    print("Printing cars...")
 
-    cur.execute('''
-        SELECT
-        Car.CarID, 
-        Brand AS "Car Brand", 
-        Model,
-        Registeration_number, 
-        Number_of_passangers,
-        Locations.City
-        FROM Car
-        INNER JOIN Cars ON Cars.CarID = Car.CarID
-        INNER JOIN Locations ON Locations.LocationID = Cars.LocationID;
-        ''')
-    results = cur.fetchall()
-    for row in results:
-        print(row)
+    try:
+        cur.execute('''
+            SELECT
+            Car.CarID, 
+            Brand AS "Car Brand", 
+            Model,
+            Registeration_number, 
+            Number_of_passangers,
+            Locations.City
+            FROM Car
+            INNER JOIN Cars ON Cars.CarID = Car.CarID
+            INNER JOIN Locations ON Locations.LocationID = Cars.LocationID;
+            ''')
+        results = cur.fetchall()
+        for row in results:
+            print(row)
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
 
     return
 
-# Print all rental locations
+# Print all rental locations (TODO: Add list of cars.)
 def printLocations():
-    print("Printing rental locations")
+    print("Printing rental locations...")
 
-    cur.execute('''
-        SELECT
-        LocationID, 
-        City,
-        Address,
-        Type
-        FROM Locations;
-        ''')
-    results = cur.fetchall()
-    for row in results:
-        print(row)
+    try:
+        cur.execute('''
+            SELECT
+            LocationID, 
+            City,
+            Address,
+            Type
+            FROM Locations;
+            ''')
+        results = cur.fetchall()
+        for row in results:
+            print(row)
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
 
     return
 
+# Print all reservations
+def printReservations():
+    print("Printing reservations...")
 
+    try:
+        cur.execute("SELECT * FROM Reservations;")
+        results = cur.fetchall()
+        for row in results:
+            print(row)
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    return
+
+# Test print functions (FOR TESTING)
 def printX():
     print("Printing X")
 
-    cur.execute("SELECT * FROM Reservation;")
-    results = cur.fetchall()
-    for row in results:
-        print(row)
+    try:
+        cur.execute("SELECT * FROM Reservations;")
+        results = cur.fetchall()
+        for row in results:
+            print(row)
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
 
     return
 
@@ -64,52 +96,102 @@ def searchCar():
     carBrand = input("Car brand: ")
     carSeats = input("Number of seats: ")
 
-    cur.execute('''
-        SELECT
-        Car.CarID, 
-        Brand, 
-        Model,
-        Registeration_number, 
-        Number_of_passangers,
-        Locations.City
-        FROM Car
-        INNER JOIN Cars ON Cars.CarID = Car.CarID
-        INNER JOIN Locations ON Locations.LocationID = Cars.LocationID
-        WHERE Brand = (?) AND Number_of_passangers = (?);
-        ''', (carBrand, carSeats,))
+    try:
+        cur.execute('''
+            SELECT
+            Car.CarID, 
+            Brand, 
+            Model,
+            Registeration_number, 
+            Number_of_passangers,
+            Locations.City
+            FROM Car
+            INNER JOIN Cars ON Cars.CarID = Car.CarID
+            INNER JOIN Locations ON Locations.LocationID = Cars.LocationID
+            WHERE Brand = (?) AND Number_of_passangers = (?);
+            ''', (carBrand, carSeats,))
+        
+        results = cur.fetchall()
+        if not results:
+            print("\nNo matching cars. Try again changing search options...")
+        else:
+            for row in results:
+                print(row)
     
-    results = cur.fetchall()
-    if not results:
-        print("\nNo matching cars. Try again changing search options...")
-    else:
-        for row in results:
-            print(row)
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
 
     return
 
+# Search reservations by customer name
+def searchReservations():
+    customerFirstName = input("Firstname: ")
+    customerLastName = input("Lastname: ")
 
-def moveMatch():
-    matchID = input("What is the matchID of the match you want to move? ")
-    newMatchDate = input("What is the new matchdate you want to set?")
+    try:
+        cur.execute('''
+            SELECT
+            Reservations.ReservationID,
+            Firstname,
+            Lastname,
+            Reservations.CarID
+            FROM Reservations
+            INNER JOIN Customers ON Customers.CustomerID = Reservations.CustomerID
+            INNER JOIN ReservationTime ON ReservationTime.ReservationID = Reservations.ReservationID
+            INNER JOIN Cars ON Cars.CarID = Reservations.CarID
+            WHERE Firstname = (?) AND Lastname = (?);
+            ''', (customerFirstName, customerLastName, ))
+        
+        results = cur.fetchall()
+        if not results:
+            print("\nNo matching reservations. Try again changing search options...")
+        else:
+            for row in results:
+                print(row)
 
-    """ 
-    Using the correct Python and SQL comands:
-    Change the match date based on the given matchID and new matchdate
-    IF a new matchdate is set to NULL, set the winner and result to NULL as well
-    """
-    # Start your modifications after this comment
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
 
     return
 
+# Add a new reservation
+def makeReservation():
+    asd = input("What is the matchID of the match you want to move? ")
 
-def deletePlayer():
-    playerID = input("What is the player's PlayerID? ")
-    """ 
-    Using the correct Python and SQL comands:
-    Delete the Player and his Ranking information
-    Additionally, set the playerid to NULL in ALL match-data it is found
-    """
-    # Start your modifications after this comment
+    try:
+        print("aha") # DEBUG
+
+        #cur.execute('''
+
+        #''', (asd, ))
+
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    return
+
+# Delete reservation with user input ID
+def deleteReservation():
+    printReservations()
+    reservationID = input("To be deleted ID: ")
+
+    try:
+        cur.execute('''
+            DELETE FROM Reservations
+            WHERE reservationID = (?);
+        ''', (reservationID, ))
+
+        conn.commit()
+        print(f"Reservation with ID {reservationID} deleted.")
+        
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    return
 
 
 if __name__ == '__main__':
@@ -118,22 +200,26 @@ if __name__ == '__main__':
     userInput = -1
 
     # Initialize database connection and cursor
-    initializeDB.initializeDataBase(db_name)
-    conn = sqlite3.connect(db_name)
-    cur = conn.cursor()
+    try:
+        initializeDB.initializeDataBase(db_name)
+        conn = sqlite3.connect(db_name)
+        cur = conn.cursor()
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED WHILE INITIALIZING DATABASE ---")
+        print(er)
     
     # Main loop
     while (userInput != "0"):
         # Print selection
         print("\nMenu options:")
-        print("1: Print Cars")
-        print("2: Print Locations")
-        print("3: Print -")
-        print("4: Print -")
-        print("5: Print -")
-        print("6: Search for car")
-        print("7: Make -")
-        print("8: Delete -")
+        print("1: Print Cars")                  # SELECT-query
+        print("2: Print Locations")             # SELECT-query
+        print("3: Print Reservations")          # SELECT-query
+        print("4: Print -")                     # -
+        print("5: Search for cars")             # SELECT-query
+        print("6: Search for reservation")      # SELECT-query
+        print("7: Make reservation")            # INSERT VALUES reservation
+        print("8: Delete reservation")          # DELETE reservation
         print("0: Quit")
 
         # Get user input
@@ -146,17 +232,17 @@ if __name__ == '__main__':
         if userInput == "2":
             printLocations()
         if userInput == "3":
-            printX()
+            printReservations()
         if userInput == "4":
             printX()
         if userInput == "5":
-            printX()
-        if userInput == "6":
             searchCar()
+        if userInput == "6":
+            searchReservations()
         if userInput == "7":
-            moveMatch()
+            makeReservation()
         if userInput == "8":
-            deletePlayer()
+            deleteReservation()
         if userInput == "0":
             print("Ending software...")
 
