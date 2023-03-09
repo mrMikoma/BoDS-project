@@ -1,6 +1,5 @@
 
 import sqlite3
-from sqlite3 import Error
 import os.path
 
 
@@ -44,6 +43,7 @@ def createTables(conn, cur):
         cur.execute('''
             CREATE TABLE "Locations" (
             "LocationID" INTEGER NOT NULL,
+            "City" TEXT,
             "Address" TEXT,
             "Type" TEXT,
             PRIMARY KEY("LocationID" AUTOINCREMENT))
@@ -148,14 +148,14 @@ def addDefaultValues(conn, cur):
     # Locations -values
     try:
         cur.execute('''
-            INSERT INTO Locations (Address, Type) VALUES 
-            ("Tietyö 60, Lappeenranta", "Store"),
-            ("Asemakatu 6, Pirkkala", "Self-service"),
-            ("Ammattikoulunkatu 6, Imatra", "Store"),
-            ("Nörttikatu 100101100, Lappeenranta", "Self-service"),
-            ("Mikonkatu 32, Helsinki", "Store"),
-            ("Mannerheiminkatu 101, Helsinki", "Store"),
-            ("Lintutornintie 423, Simpele", "Self-service")
+            INSERT INTO Locations (Address, City, Type) VALUES 
+            ("Tietyö 60", "Lappeenranta", "Store"),
+            ("Asemakatu 6", "Pirkkala", "Self-service"),
+            ("Ammattikoulunkatu 6", "Imatra", "Store"),
+            ("Nörttikatu 100101100", "Lappeenranta", "Self-service"),
+            ("Mikonkatu 32", "Helsinki", "Store"),
+            ("Mannerheiminkatu 101", "Helsinki", "Store"),
+            ("Lintutornintie 423", "Simpele", "Self-service")
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
@@ -231,6 +231,7 @@ def initializeDataBase(dbName):
     if os.path.exists(dbName):
         print("Database already exists.")
 
+    # Create new data base if not existing already
     else:
         conn = sqlite3.connect(dbName) 
         cur = conn.cursor()
@@ -245,7 +246,7 @@ def initializeDataBase(dbName):
 # For testing purposes only
 if __name__ == '__main__':
     print("yea boi")
-    dbName = "test22.sqlite"
+    dbName = "test2.sqlite"
     initializeDataBase(dbName)
 
 # EOF

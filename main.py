@@ -12,7 +12,16 @@ TODO:
 def printCars():
     print("Printing cars")
 
-    cur.execute("SELECT * FROM Cars;")
+    cur.execute('''SELECT 
+                    Brand, 
+                    Model,
+                    Registeration_number, 
+                    Number_of_passangers,
+                    Locations.City
+                    FROM Car
+                    INNER JOIN Cars ON Cars.CarID = Car.CarID
+                    INNER JOIN Locations ON Locations.LocationID = Cars.LocationID;
+                 ''')
     results = cur.fetchall()
     for row in results:
         print(row)
@@ -89,13 +98,14 @@ if __name__ == '__main__':
     db_name = "test.sqlite"
     userInput = -1
 
-    # Initialize connection and cursor
+    # Initialize database connection and cursor
     initializeDB.initializeDataBase(db_name)
     conn = sqlite3.connect(db_name)
     cur = conn.cursor()
     
     # Main loop
     while (userInput != "0"):
+        # Print selection
         print("\nMenu options:")
         print("1: Print Cars")
         print("2: Print Locations")
@@ -106,7 +116,11 @@ if __name__ == '__main__':
         print("7: Make -")
         print("8: Delete -")
         print("0: Quit")
+
+        # Get user input
         userInput = input("What do you want to do? ")
+
+        # Manage user input
         print(userInput)
         if userInput == "1":
             printCars()
