@@ -255,19 +255,6 @@ def deleteReservation():
 
     return
 
-def handleUserTime(userTime):
-    # '2023-03-14T15:00:00+02:00'
-    try:
-        dbTime = datetime.datetime.strptime(userTime, "%d.%m.%Y").astimezone().replace(hour=12, minute=00, microsecond=0).isoformat()
-        print(dbTime)
-        dbTimeString = "asd"
-
-    except sqlite3.Error as er:
-        print("--- ERROT: Incorrect time format, please try again. ---")
-        print(er)
-
-    return(dbTimeString)
-
 
 if __name__ == '__main__':
     # Declaring variables
