@@ -31,7 +31,7 @@ def createTables(conn, cur):
             "CustomerID" INTEGER NOT NULL UNIQUE,
             "Firstname" TEXT,
             "Lastname" TEXT,
-            "Phone"	TEXT,
+            "Phone"	TEXT CHECK (length(phone) >= 10),
             PRIMARY KEY("CustomerID" AUTOINCREMENT))
             ''')
     except sqlite3.Error as er:
@@ -225,20 +225,44 @@ def addDefaultValues(conn, cur):
     return
 
 def addIndexes(conn, cur):
-    print("ou yea")
 
-    #  -index
+    # Car_seats-index
     try:
         cur.execute('''
-                CREATE INDEX
-
+            CREATE INDEX "Car_seats" ON "Car" (
+                "Registeration_number"	ASC,
+                "Number_of_passangers"	DESC );
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
         print(er)
+
+
+    # Car_day_prices-index
+    try:
+        cur.execute('''
+            CREATE INDEX "Car_day_prices" ON "Prices" (
+                "CarID"	ASC,
+                "Day_price"	ASC );
+            ''')
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
+    # -index
+    try:
+        cur.execute('''
+            CREATE INDEX "Customer_Phone" ON "Customers" (
+                "CustomerID"	ASC,
+                "Phone"	ASC
+            );
+            ''')
+    except sqlite3.Error as er:
+        print("--- ERROR OCCURED ---")
+        print(er)
+
     
     conn.commit()
-
     return
 
 def initializeDataBase(dbName):
@@ -254,17 +278,16 @@ def initializeDataBase(dbName):
         cur = conn.cursor()
         createTables(conn, cur)
         addDefaultValues(conn, cur)
-        #addIndexes(conn, cur)          # NOT READY
+        addIndexes(conn, cur)
         conn.close()
 
     print("--- Initiation completed. ---")
     return
 
 
-# For testing purposes only
+# For testing purposes
 if __name__ == '__main__':
-    print("yea boi")
-    dbName = "test2.sqlite"
+    dbName = "DB_rental_test.sqlite"
     initializeDataBase(dbName)
 
 # EOF

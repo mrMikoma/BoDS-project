@@ -5,8 +5,7 @@ import datetime
 
 """
 TODO:
-- ADD MISSING OPTIONS
-- CREATE INDEXES
+- 
 
 """
 
@@ -106,6 +105,7 @@ def printCustomers():
 
 # Print rental price
 def rentalPrice():
+    printReservations()
     reservationID = input("Reservation ID: ")
 
     # Get times from ReservationTime-table
@@ -235,7 +235,9 @@ def searchReservations():
             Firstname,
             Lastname,
             Car.Brand,
-            Car.Registeration_number
+            Car.Registeration_number,
+            ReservationTime.Start_time,
+            ReservationTime.End_time
             FROM Reservations
             INNER JOIN Customers ON Customers.CustomerID = Reservations.CustomerID
             INNER JOIN ReservationTime ON ReservationTime.ReservationID = Reservations.ReservationID
@@ -326,7 +328,7 @@ def deleteReservation():
 
 if __name__ == '__main__':
     # Declaring variables
-    dbName = "test.sqlite"
+    dbName = "DB_rental_main.sqlite"
     userInput = -1
 
     # Initialize database connection and cursor
