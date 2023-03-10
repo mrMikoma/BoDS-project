@@ -61,7 +61,10 @@ def createTables(conn, cur):
             "Week_price" INTEGER,
             "Day_price"	INTEGER,
             PRIMARY KEY("PriceID" AUTOINCREMENT),
-            FOREIGN KEY("CarID") REFERENCES "Car" ("CarID"))
+            CONSTRAINT fk_carID
+                FOREIGN KEY("CarID") 
+                REFERENCES Car ("CarID")
+                ON DELETE CASCADE)
             ''')
     except sqlite3.Error as er:
         print("--- ERROR OCCURED ---")
