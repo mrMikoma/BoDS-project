@@ -245,7 +245,7 @@ def addIndexes(conn, cur):
     try:
         cur.execute('''
             CREATE INDEX "Car_day_prices" ON "Prices" (
-                "CarID"	ASC,
+                "Registeration_number"	ASC,
                 "Day_price"	ASC );
             ''')
     except sqlite3.Error as er:
